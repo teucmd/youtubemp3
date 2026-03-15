@@ -1,0 +1,9 @@
+packages:
+  "framer-motion": "For smooth layout transitions and polished micro-interactions"
+  "clsx": "Utility for conditionally joining classNames"
+  "tailwind-merge": "Utility for merging tailwind classes without conflicts"
+
+notes:
+  - "The app uses a dark-first theme to match the 'clean modern dark-accented professional tool' requirement."
+  - "React Query hooks are imported from @workspace/api-client-react as per instructions."
+  - "The conversion process can take time, so thoughtful loading states are implemented using Framer Motion."

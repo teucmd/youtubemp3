@@ -1,0 +1,189 @@
+openapi: 3.1.0
+info:
+  title: Api
+  version: 0.1.0
+  description: API specification
+servers:
+  - url: /api
+    description: Base API path
+tags:
+  - name: health
+    description: Health operations
+  - name: audio
+    description: Audio conversion operations
+paths:
+  /healthz:
+    get:
+      operationId: healthCheck
+      tags: [health]
+      summary: Health check
+      description: Returns server health status
+      responses:
+        "200":
+          description: Healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
+  /audio/info:
+    post:
+      operationId: getVideoInfo
+      tags: [audio]
+      summary: Get YouTube video info
+      description: Fetches video title and metadata for a given YouTube URL
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VideoInfoRequest"
+      responses:
+        "200":
+          description: Video info
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VideoInfo"
+        "400":
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /audio/download:
+    post:
+      operationId: downloadAudio
+      tags: [audio]
+      summary: Download audio from YouTube video
+      description: Returns a download URL for the audio extracted from a YouTube video
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DownloadRequest"
+      responses:
+        "200":
+          description: Download info with file path
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DownloadResponse"
+        "400":
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /audio/file/{filename}:
+    get:
+      operationId: getAudioFile
+      tags: [audio]
+      summary: Download audio file
+      description: Serves the converted audio file for download
+      parameters:
+        - name: filename
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Audio file
+          content:
+            audio/mpeg:
+              schema:
+                type: string
+                format: binary
+        "404":
+          description: File not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+components:
+  schemas:
+    HealthStatus:
+      type: object
+      properties:
+        status:
+          type: string
+      required:
+        - status
+    VideoInfoRequest:
+      type: object
+      properties:
+        url:
+          type: string
+          description: YouTube video URL
+      required:
+        - url
+    VideoInfo:
+      type: object
+      properties:
+        title:
+          type: string
+        duration:
+          type: number
+          description: Duration in seconds
+        thumbnail:
+          type: string
+          description: Thumbnail URL
+        author:
+          type: string
+      required:
+        - title
+        - duration
+        - thumbnail
+        - author
+    DownloadRequest:
+      type: object
+      properties:
+        url:
+          type: string
+          description: YouTube video URL
+        format:
+          type: string
+          enum: [mp3, m4a, wav, ogg, flac, opus, mp4, mkv, webm, avi]
+          description: Audio or video format
+      required:
+        - url
+        - format
+    DownloadResponse:
+      type: object
+      properties:
+        filename:
+          type: string
+        downloadUrl:
+          type: string
+        title:
+          type: string
+        fileSize:
+          type: number
+          description: File size in bytes
+      required:
+        - filename
+        - downloadUrl
+        - title
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+        message:
+          type: string
+      required:
+        - error
+        - message
