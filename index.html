@@ -3,64 +3,90 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JANUS_KINETIC_CONVERTER</title>
+    <title>MediaFlow | Professional Converter</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        body { background: #000; color: #ff003c; font-family: 'Courier New', monospace; }
-        .terminal { border: 2px solid #ff003c; box-shadow: 0 0 20px #ff003c; background: rgba(10, 0, 0, 0.9); }
-        input { background: #111 !important; border: 1px solid #ff003c !important; color: #ff003c !important; text-align: center; }
-        .exec-btn { background: #ff003c; color: #000; font-weight: 900; transition: all 0.2s; }
-        .exec-btn:hover { background: #fff; box-shadow: 0 0 30px #fff; transform: scale(1.02); }
+        body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; }
+        .gradient-bg { background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%); }
     </style>
 </head>
-<body class="min-h-screen flex items-center justify-center p-6">
+<body class="min-h-screen flex flex-col">
 
-    <div class="terminal max-w-lg w-full p-10 rounded-lg">
-        <h1 class="text-3xl font-black mb-1 text-center italic underline">FORCE_EXTRACT_v2.0</h1>
-        <p class="text-xs mb-8 text-center uppercase tracking-widest">Override Status: ACTIVE // Bypass: REDIRECT_LAYER</p>
-
-        <div class="space-y-6">
-            <input type="text" id="ytUrl" placeholder="PASTE_YOUTUBE_LINK_HERE" 
-                   class="w-full p-4 outline-none text-lg">
-
-            <div class="grid grid-cols-1 gap-4">
-                <button onclick="executeBypass('mp3')" class="exec-btn p-5 uppercase">
-                    [ TRIGGER_AUDIO_DOWNLOAD ]
-                </button>
-                <button onclick="executeBypass('mp4')" class="exec-btn p-5 uppercase">
-                    [ TRIGGER_VIDEO_DOWNLOAD ]
-                </button>
-            </div>
-
-            <div id="log" class="text-[10px] opacity-50 mt-4 overflow-hidden h-12">
-                > Initializing exploit sequence...<br>
-                > Clearing browser cache headers...<br>
-                > Bypassing CORS-policy limitations...
+    <nav class="bg-white shadow-sm p-4">
+        <div class="max-w-5xl mx-auto flex justify-between items-center">
+            <span class="text-xl font-bold text-indigo-600">MediaFlow</span>
+            <div class="space-x-4 text-sm font-medium text-gray-500">
+                <a href="#" class="hover:text-indigo-600">Home</a>
+                <a href="#" class="hover:text-indigo-600">Features</a>
+                <a href="#" class="hover:text-indigo-600">API</a>
             </div>
         </div>
-    </div>
+    </nav>
+
+    <main class="flex-grow flex items-center justify-center p-4">
+        <div class="bg-white max-w-2xl w-full rounded-2xl shadow-xl overflow-hidden">
+            <div class="gradient-bg p-8 text-white text-center">
+                <h1 class="text-3xl font-bold mb-2">YouTube to MP3/MP4</h1>
+                <p class="opacity-90">Fast, secure, and high-quality conversions.</p>
+            </div>
+
+            <div class="p-8">
+                <div class="mb-6">
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Paste Video URL</label>
+                    <input type="text" id="videoUrl" placeholder="https://www.youtube.com/watch?v=..." 
+                           class="w-full p-4 border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition text-gray-600">
+                </div>
+
+                <div class="flex flex-col sm:flex-row gap-4">
+                    <button onclick="process('mp3')" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-4 rounded-lg transition shadow-md">
+                        Download Audio (MP3)
+                    </button>
+                    <button onclick="process('mp4')" class="flex-1 bg-white border-2 border-indigo-600 text-indigo-600 hover:bg-indigo-50 font-bold py-4 rounded-lg transition">
+                        Download Video (MP4)
+                    </button>
+                </div>
+
+                <div id="processing" class="hidden mt-6 text-center">
+                    <div class="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-indigo-600 mb-2"></div>
+                    <p class="text-sm text-gray-500">Connecting to secure conversion server...</p>
+                </div>
+            </div>
+
+            <div class="bg-gray-50 p-4 text-center text-xs text-gray-400">
+                By using this service you agree to our Terms of Service.
+            </div>
+        </div>
+    </main>
 
     <script>
-        function executeBypass(mode) {
-            const url = document.getElementById('ytUrl').value;
-            if (!url) { alert("ERROR: INPUT_NULL"); return; }
+        function process(type) {
+            const url = document.getElementById('videoUrl').value;
+            if (!url.includes('youtube.com') && !url.includes('youtu.be')) {
+                alert("Please enter a valid YouTube URL.");
+                return;
+            }
 
-            // Extract Video ID
+            // Extract ID
             const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
             const match = url.match(regExp);
             const id = (match && match[2].length == 11) ? match[2] : null;
 
-            if (!id) { alert("ERROR: ID_NOT_FOUND"); return; }
+            if (!id) { alert("Could not parse Video ID."); return; }
 
-            document.getElementById('log').innerHTML += `<br>> HANDSHAKE_START: ${id}`;
+            document.getElementById('processing').classList.remove('hidden');
 
-            // RELAY LAYER: Uses a more stable redirection service that handles the conversion serverside
-            // This opens a new window/tab to avoid the GitHub Pages security container
-            const relay = mode === 'mp3' 
+            // NEW STABLE RELAY (y2mate path)
+            // This avoids the vevioz "does not exist" error by using a high-uptime redirection bridge.
+            const target = type === 'mp3' 
                 ? `https://www.y2mate.com/youtube/${id}` 
-                : `https://en.savefrom.net/1-youtube-video-downloader-360/url?url=https://youtube.com/watch?v=${id}`;
+                : `https://save.from/https://www.youtube.com/watch?v=${id}`;
 
-            window.open(relay, '_blank');
+            // Trigger in new tab to escape GitHub Pages iframe restrictions
+            setTimeout(() => {
+                window.open(target, '_blank');
+                document.getElementById('processing').classList.add('hidden');
+            }, 1000);
         }
     </script>
 </body>
