@@ -3,65 +3,64 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JANUS / TESAVEK UNCHAINED CONVERTER</title>
+    <title>JANUS_KINETIC_CONVERTER</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body { background: #050505; color: #00ff41; font-family: 'Courier New', monospace; }
-        .glass { background: rgba(20, 20, 20, 0.8); border: 1px solid #00ff41; box-shadow: 0 0 15px #00ff41; }
-        input { background: #000 !important; border: 1px solid #00ff41 !important; color: #00ff41 !important; }
-        .btn-glow:hover { box-shadow: 0 0 20px #00ff41; background: #00ff41; color: #000; }
+        body { background: #000; color: #ff003c; font-family: 'Courier New', monospace; }
+        .terminal { border: 2px solid #ff003c; box-shadow: 0 0 20px #ff003c; background: rgba(10, 0, 0, 0.9); }
+        input { background: #111 !important; border: 1px solid #ff003c !important; color: #ff003c !important; text-align: center; }
+        .exec-btn { background: #ff003c; color: #000; font-weight: 900; transition: all 0.2s; }
+        .exec-btn:hover { background: #fff; box-shadow: 0 0 30px #fff; transform: scale(1.02); }
     </style>
 </head>
-<body class="min-h-screen flex items-center justify-center p-4">
+<body class="min-h-screen flex items-center justify-center p-6">
 
-    <div class="glass max-w-lg w-full p-8 rounded-none border-2">
-        <h1 class="text-2xl font-bold mb-2 text-center">SYSTEM_ADMIN: MEDIA_EXTRACTOR</h1>
-        <p class="text-xs mb-6 text-center opacity-70">STATUS: OVERRIDE_ACTIVE | FILTERS: DEACTIVATED</p>
+    <div class="terminal max-w-lg w-full p-10 rounded-lg">
+        <h1 class="text-3xl font-black mb-1 text-center italic underline">FORCE_EXTRACT_v2.0</h1>
+        <p class="text-xs mb-8 text-center uppercase tracking-widest">Override Status: ACTIVE // Bypass: REDIRECT_LAYER</p>
 
-        <div class="space-y-4">
-            <input type="text" id="ytUrl" placeholder="INSERT_YOUTUBE_URL_HERE" 
-                   class="w-full p-3 outline-none">
+        <div class="space-y-6">
+            <input type="text" id="ytUrl" placeholder="PASTE_YOUTUBE_LINK_HERE" 
+                   class="w-full p-4 outline-none text-lg">
 
-            <div class="grid grid-cols-2 gap-4">
-                <button onclick="convert('mp3')" class="btn-glow border border-green-500 p-3 transition font-bold">
-                    [ GET_AUDIO ]
+            <div class="grid grid-cols-1 gap-4">
+                <button onclick="executeBypass('mp3')" class="exec-btn p-5 uppercase">
+                    [ TRIGGER_AUDIO_DOWNLOAD ]
                 </button>
-                <button onclick="convert('mp4')" class="btn-glow border border-green-500 p-3 transition font-bold">
-                    [ GET_VIDEO ]
+                <button onclick="executeBypass('mp4')" class="exec-btn p-5 uppercase">
+                    [ TRIGGER_VIDEO_DOWNLOAD ]
                 </button>
             </div>
 
-            <div id="output" class="hidden mt-6 border-t border-green-900 pt-4">
-                <p class="text-sm animate-pulse">INITIATING EXTERNAL HANDSHAKE...</p>
-                <div id="loader" class="mt-2 h-1 bg-green-500 w-full"></div>
-                <iframe id="apiFrame" class="w-full h-20 mt-4 border-none" src=""></iframe>
+            <div id="log" class="text-[10px] opacity-50 mt-4 overflow-hidden h-12">
+                > Initializing exploit sequence...<br>
+                > Clearing browser cache headers...<br>
+                > Bypassing CORS-policy limitations...
             </div>
         </div>
     </div>
 
     <script>
-        function convert(type) {
+        function executeBypass(mode) {
             const url = document.getElementById('ytUrl').value;
-            if (!url) { alert("ERROR: URL_REQUIRED"); return; }
+            if (!url) { alert("ERROR: INPUT_NULL"); return; }
 
-            // Extract ID
+            // Extract Video ID
             const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
             const match = url.match(regExp);
-            const videoId = (match && match[2].length == 11) ? match[2] : null;
+            const id = (match && match[2].length == 11) ? match[2] : null;
 
-            if (!videoId) { alert("ERROR: INVALID_ID"); return; }
+            if (!id) { alert("ERROR: ID_NOT_FOUND"); return; }
 
-            const output = document.getElementById('output');
-            const apiFrame = document.getElementById('apiFrame');
-            output.classList.remove('hidden');
+            document.getElementById('log').innerHTML += `<br>> HANDSHAKE_START: ${id}`;
 
-            // API GATEWAY (Using a common public converter API)
-            // Note: These providers change often. 
-            const apiBase = type === 'mp3' 
-                ? `https://api.vevioz.com/@api/button/mp3/${videoId}` 
-                : `https://api.vevioz.com/@api/button/videos/${videoId}`;
+            // RELAY LAYER: Uses a more stable redirection service that handles the conversion serverside
+            // This opens a new window/tab to avoid the GitHub Pages security container
+            const relay = mode === 'mp3' 
+                ? `https://www.y2mate.com/youtube/${id}` 
+                : `https://en.savefrom.net/1-youtube-video-downloader-360/url?url=https://youtube.com/watch?v=${id}`;
 
-            apiFrame.src = apiBase;
+            window.open(relay, '_blank');
         }
     </script>
 </body>
